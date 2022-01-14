@@ -4,93 +4,94 @@ from os import system
 from time import sleep
 from assets import *
 
+lst = []
+lives = 6
+
 def clear():
   _ = system('clear')
-
+  print(header + "\n")
+  
 def get_word():
   words = []
-  with open("./archivos/data.txt", "r", encoding="utf-8") as f:
+  with open("./data.txt", "r", encoding="utf-8") as f:
     for word in f:
       words.append(word)
   word = random.choice(words)
   word = ''.join((c for c in unicodedata.normalize('NFD', word) if unicodedata.category(c) != 'Mn'))
   return word.upper()
 
-lst = []
-lives = 6
-
 def print_hang_man():
   global lives
   if lives == 6:
     print(hang0)
-  if lives == 5:
+  elif lives == 5:
     print(hang1)
-  if lives == 4:
+  elif lives == 4:
     print(hang2)
-  if lives == 3:
+  elif lives == 3:
     print(hang3)
-  if lives == 2:
+  elif lives == 2:
     print(hang4)
-  if lives == 1:
+  elif lives == 1:
     print(hang5)
-
+  elif lives == 0:
+    print(hang6)
 
 def start(word):
-  for i in range(len(word) -1):
+  global lst
+  listed_word = list(word)
+  listed_word.remove('\n')
+  for i in range(len(word) - 2):
+    if i == 0:
+      lst.append(listed_word[i])
     lst.append("_")
-  print(header)
-  print(hang0)
-  print("\nAdivina la palabra!\n")
-  print(*lst)
+  print_hang_man()
+  print("\n" + str(lst))
+  game(word)
 
-def game(word):
+def end_game(word):
   global lives
-  if lives == 0:
-    raise Exception
-  select = input("\nIntroduce una letra: \n").upper()
-  if(len(select) > 1):
-    lives -= 1
-    print("\nIngresa solo una letra\n")
-    sleep(2)
-  if(word.find(select) == -1):
-    lives -= 1
-    print("\nUps esa letra no esta\n")
-    sleep(2)
+  if lives <= 0:
+    clear()
+    print_hang_man()
+    print("\nPerdiste\n\nLa palabra era: \n")
+    print(word)
   else:
+    clear()
+    print(win)
+    print("\nGanaste!!!!!!!!\n")
+  
+def game(word):
+  global lst
+  listed_word = list(word)
+  listed_word.remove('\n')
+  while lst != listed_word:
+    global lives
+    if lives <= 0:
+      break
+    select = input("\nIntroduce una letra: \n").upper()
+    if(len(select) > 1):
+      lives -= 1
+      print("\nIngresa solo una letra, has perdido un intento\n")
+      sleep(1)
+    if(word.find(select) == -1):
+      lives -= 1
+      print("\nUps esa letra no esta, has perdido un intento\n")
+      sleep(1)
     for pos, char in enumerate(word):
       if(char == select):
         lst[pos] = select
-  try:
-    if(lst.index("_")):
-      clear()
-      print(header)
-      print_hang_man()
-      print("\nAdivina la palabra!\n")
-      print(*lst)
-      game(word)
-  except ValueError:
     clear()
-    print(header + "\n")
-    print(win)
-    print(*lst)
-    print("\nGanaste!!!!!!!!\n")
-  except Exception as ex:
-    clear()
-    print(header)
-    print(hang6)
-    print("\nPerdiste\nLa palabra era: ")
-    print(word)
+    print_hang_man()
+    print("\n" + str(lst))
+    print("\nAdivina la palabra!")
+  end_game(word)
     
-
-
 def run():
   word = get_word()
   clear()
   print(word)
   start(word)
-  game(word)
-  
-
 
 if __name__ == '__main__':
   run()
