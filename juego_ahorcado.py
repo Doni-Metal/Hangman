@@ -90,7 +90,6 @@ def game(word):
 def run():
   word = get_word()
   clear()
-  print(word)
   start(word)
 
 if __name__ == '__main__':
